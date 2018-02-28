@@ -1,6 +1,8 @@
 #! usr/bin/python
 # coding:utf8
 
+""" get products using token"""
+
 from db import MsSQL
 
 
