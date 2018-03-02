@@ -5,11 +5,18 @@
 
 import requests
 from common.color import get_color_dict
+from common.db import Redis
 
 color_dict = get_color_dict()
+redis = Redis().redis()
 
 
-def fetch__products(base_url):
+def fetch__products(pro_id):
+    api = 'https://api.joom.com/1.1/products/'
+    if not pro_id:
+        raise Exception('Invalid pro ID', pro_id)
+    base_url = api + pro_id
+
     headers = {
         'authorization': ('Bearer SEV0001MTUxOTcwOTIyM3xFWmJvMklNTEhiak00bmR'
                           'faTlHR3hvVFZjQ0FnM1J0Y2lRaTBjZjBYYzZNZk1UdGV6bmxj'
@@ -66,9 +73,14 @@ def parse_response(data):
             yield wanted_info
 
 
-if __name__ == "__main__":
-    base_url = 'https://api.joom.com/1.1/products/1504779018437136151-176-1-26193-2505906393'
-    raw_data = fetch__products(base_url)
+def crawler():
+    pro_id = redis.get(14)
+    raw_data = fetch__products(pro_id)
     for row in parse_response(raw_data):
         print row
+
+
+if __name__ == "__main__":
+    crawler()
+
 
