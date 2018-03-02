@@ -5,11 +5,11 @@
 
 import requests
 from common.color import get_color_dict
-from common.db import Redis
+from common.db import Redis,MsSQL
 
 color_dict = get_color_dict()
 redis = Redis().redis()
-
+ms_sql = MsSQL()
 
 def fetch__products(pro_id):
     api = 'https://api.joom.com/1.1/products/'
@@ -47,37 +47,79 @@ def parse_response(data):
         main_info['mainImage'] = pro_info['lite']['mainImage']['images'][-1]['url']
         for image in extra_images:
             main_info['extra_image' + str(extra_images.index(image))] = image['payload']['images'][-1]['url']
+        for i in range(0, 11-len(extra_images)):
+            main_info['extra_image' + str(11-i-1)] = ''
         pro_variants = pro_info['variants']
 
         for var in pro_variants:
             variants = dict()
             try:
-                variants['colors'] = color_dict['#' + var['colors'][0]['rgb']]
+                variants['color'] = color_dict['#' + var['colors'][0]['rgb']]
             except:
-                variants['colors'] = ''
+                variants['color'] = ''
             try:
-                variants['size'] = var['size']
+                variants['proSize'] = var['size']
             except:
-                variants['size'] = ''
-            variants['msrPrice'] = var['msrPrice']
+                variants['proSize'] = ''
+            try:
+                variants['msrPrice'] = var['msrPrice']
+            except:
+                variants['msrPrice'] = 0
             variants['shipping'] = var['shipping']['price']
             variants['shippingTime'] = '-'.join([str(var['shipping']['minDays']), str(var['shipping']['maxDays'])])
             variants['price'] = var['price']
             try:
                 variants['shippingWeight'] = var['shippingWeight']
             except:
-                variants['shippingWeight'] = ''
-            variants['varMainImage'] = var['mainImage']['images'][-1]['url']
+                variants['shippingWeight'] = 0
+            try:
+                variants['varMainImage'] = var['mainImage']['images'][-1]['url']
+            except:
+                variants['varMainImage'] = ''
             variants['quantity'] = var['inventory']
             wanted_info = dict(main_info, **variants)
             yield wanted_info
 
 
 def crawler():
-    pro_id = redis.get(14)
-    raw_data = fetch__products(pro_id)
-    for row in parse_response(raw_data):
-        print row
+    with ms_sql as con:
+        cur = con.cursor()
+        insert_sql = ("insert oa_data_mine_detail"
+                      "(mid,parentId,proName,description,"
+                      "tags,childId,color,proSize,quantity,"
+                      "price,msrPrice,shipping,shippingWeight,"
+                      "shippingTime,varMainImage,extra_image0,"
+                      "extra_image1,extra_image2,extra_image3,"
+                      "extra_image4,extra_image5,extra_image6,"
+                      "extra_image7,extra_image8,extra_image9,"
+                      "extra_image10"
+                      ") "
+                      "values( %s,%s,%s,%s,%s,%s,%s,%s,"
+                      "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,"
+                      "%s,%s,%s,%s,%s,%s,%s)")
+        update_sql = "update oa_data_mine set progress='已完成' where id=%s"
+        while True:
+            job = redis.blpop('job_list')[1]
+            job_info = job.split(',')
+            job_id, pro_id = job_info
+            raw_data = fetch__products(pro_id)
+            for row in parse_response(raw_data):
+                row['mid'] = job_id
+                row['parentId'] = ''
+                row['tags'] = ''
+                row['childId'] = ''
+                cur.execute(insert_sql,
+                            (row['mid'], row['parentId'], row['proName'], row['description'],
+                            row['tags'], row['childId'], row['color'], row['proSize'], row['quantity'],
+                            float(row['price']), float(row['msrPrice']), row['shipping'], float(row['shippingWeight']),
+                            row['shippingTime'],
+                            row['varMainImage'], row['extra_image0'], row['extra_image1'], row['extra_image2'],
+                            row['extra_image3'], row['extra_image4'], row['extra_image5'],
+                            row['extra_image6'], row['extra_image7'], row['extra_image8'],
+                            row['extra_image9'], row['extra_image10']))
+                cur.execute(update_sql, (job_id,))
+                con.commit()
+                print row
 
 
 if __name__ == "__main__":
