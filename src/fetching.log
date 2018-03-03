@@ -1,0 +1,1 @@
+2018-03-03 10:44:51,628 - Joom-crawler - ERROR - (102, "Incorrect syntax near '\xe9\x87\x87\xe9\x9b\x86\xe6\x88\x90\xe5\x8a\x9f'.DB-Lib error message 20018, severity 15:\nGeneral SQL Server error: Check messages from the SQL Server\n") while fetching 45

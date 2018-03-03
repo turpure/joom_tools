@@ -3,13 +3,20 @@
 
 """fetch products using request"""
 
+from sys import stdout
+
 import requests
 from common.color import get_color_dict
-from common.db import Redis,MsSQL
+from common.db import Redis, MsSQL
+from common.logger import log
+
 
 color_dict = get_color_dict()
 redis = Redis().redis()
 ms_sql = MsSQL()
+
+logger = log('Joom-crawler', 'fetching.log')
+
 
 def fetch__products(pro_id):
     api = 'https://api.joom.com/1.1/products/'
@@ -56,7 +63,7 @@ def parse_response(data):
             try:
                 variants['color'] = color_dict['#' + var['colors'][0]['rgb']]
             except:
-                variants['color'] = ''
+                variants['color'] = var['colors'][0]['rgb']
             try:
                 variants['proSize'] = var['size']
             except:
@@ -97,29 +104,37 @@ def crawler():
                       "values( %s,%s,%s,%s,%s,%s,%s,%s,"
                       "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,"
                       "%s,%s,%s,%s,%s,%s,%s)")
-        update_sql = "update oa_data_mine set progress='已完成' where id=%s"
+        update_sql = "update oa_data_mine set progress=%s where id=%s"
         while True:
             job = redis.blpop('job_list')[1]
             job_info = job.split(',')
             job_id, pro_id = job_info
             raw_data = fetch__products(pro_id)
-            for row in parse_response(raw_data):
-                row['mid'] = job_id
-                row['parentId'] = ''
-                row['tags'] = ''
-                row['childId'] = ''
-                cur.execute(insert_sql,
-                            (row['mid'], row['parentId'], row['proName'], row['description'],
-                            row['tags'], row['childId'], row['color'], row['proSize'], row['quantity'],
-                            float(row['price']), float(row['msrPrice']), row['shipping'], float(row['shippingWeight']),
-                            row['shippingTime'],
-                            row['varMainImage'], row['extra_image0'], row['extra_image1'], row['extra_image2'],
-                            row['extra_image3'], row['extra_image4'], row['extra_image5'],
-                            row['extra_image6'], row['extra_image7'], row['extra_image8'],
-                            row['extra_image9'], row['extra_image10']))
-                cur.execute(update_sql, (job_id,))
+            try:
+                for row in parse_response(raw_data):
+                    row['mid'] = job_id
+                    row['parentId'] = ''
+                    row['tags'] = ''
+                    row['childId'] = ''
+                    cur.execute(insert_sql,
+                                (row['mid'], row['parentId'], row['proName'], row['description'],
+                                row['tags'], row['childId'], row['color'], row['proSize'], row['quantity'],
+                                float(row['price']), float(row['msrPrice']), row['shipping'], float(row['shippingWeight']),
+                                row['shippingTime'],
+                                row['varMainImage'], row['extra_image0'], row['extra_image1'], row['extra_image2'],
+                                row['extra_image3'], row['extra_image4'], row['extra_image5'],
+                                row['extra_image6'], row['extra_image7'], row['extra_image8'],
+                                row['extra_image9'], row['extra_image10']))
+
+                cur.execute(update_sql, (u'采集成功', job_id))
                 con.commit()
-                print row
+            except Exception as why:
+                logger.error('%s while fetching %s' % (why, job_id))
+                cur.execute(update_sql, (u'采集失败', job_id))
+                con.commit()
+            finally:
+                print(job_id)
+                stdout.flush()
 
 
 if __name__ == "__main__":
