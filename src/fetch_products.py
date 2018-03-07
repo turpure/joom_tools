@@ -61,9 +61,12 @@ def parse_response(data):
         for var in pro_variants:
             variants = dict()
             try:
-                variants['color'] = color_dict['#' + var['colors'][0]['rgb']]
+                try:
+                    variants['color'] = color_dict['#' + var['colors'][0]['rgb']]
+                except:
+                    variants['color'] = var['colors'][0]['rgb']
             except:
-                variants['color'] = var['colors'][0]['rgb']
+                variants['color'] = ''
             try:
                 variants['proSize'] = var['size']
             except:

@@ -3,4 +3,4 @@ venv/
 /common/db.py
 *.pyc
 .idea/
-.log
+*.log
