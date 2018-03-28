@@ -102,13 +102,14 @@ def crawler():
                       "extra_image1,extra_image2,extra_image3,"
                       "extra_image4,extra_image5,extra_image6,"
                       "extra_image7,extra_image8,extra_image9,"
-                      "extra_image10"
+                      "extra_image10,mainImage"
                       ") "
                       "values( %s,%s,%s,%s,%s,%s,%s,%s,"
                       "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,"
-                      "%s,%s,%s,%s,%s,%s,%s)")
+                      "%s,%s,%s,%s,%s,%s,%s,%s)")
         update_sql = "update oa_data_mine set progress=%s where id=%s"
         while True:
+
             job = redis.blpop('job_list')[1]
             job_info = job.split(',')
             job_id, pro_id = job_info
@@ -127,12 +128,12 @@ def crawler():
                                 row['varMainImage'], row['extra_image0'], row['extra_image1'], row['extra_image2'],
                                 row['extra_image3'], row['extra_image4'], row['extra_image5'],
                                 row['extra_image6'], row['extra_image7'], row['extra_image8'],
-                                row['extra_image9'], row['extra_image10']))
+                                row['extra_image9'], row['extra_image10'], row['mainImage']))
 
                 cur.execute(update_sql, (u'采集成功', job_id))
                 con.commit()
             except Exception as why:
-                logger.error('%s while fetching %s' % (why, job_id))
+                logger.error('%s while fetchi       ng %s' % (why, job_id))
                 cur.execute(update_sql, (u'采集失败', job_id))
                 con.commit()
             finally:
