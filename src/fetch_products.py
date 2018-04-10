@@ -110,15 +110,14 @@ def crawler():
         update_sql = "update oa_data_mine set progress=%s where id=%s"
         code_sql = "select goodsCode from oa_data_mine where id=%s"
         while True:
-
-            job = redis.blpop('job_list')[1]
-            job_info = job.split(',')
-            job_id, pro_id = job_info
-            raw_data = fetch__products(pro_id)
-            cur.execute(code_sql, (job_id,))
-            code_ret = cur.fetchone()
-            code = code_ret[0]
             try:
+                job = redis.blpop('job_list')[1]
+                job_info = job.split(',')
+                job_id, pro_id = job_info
+                raw_data = fetch__products(pro_id)
+                cur.execute(code_sql, (job_id,))
+                code_ret = cur.fetchone()
+                code = code_ret[0]
                 index = 1
                 for row in parse_response(raw_data):
                     row['mid'] = job_id
