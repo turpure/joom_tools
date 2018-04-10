@@ -118,13 +118,11 @@ def crawler():
             cur.execute(code_sql, (job_id,))
             code_ret = cur.fetchone()
             code = code_ret[0]
-            import pdb
-            pdb.set_trace()
             try:
                 index = 1
                 for row in parse_response(raw_data):
                     row['mid'] = job_id
-                    row['parentId'] = ''
+                    row['parentId'] = code
                     row['tags'] = ''
                     row['childId'] = code + '_' + '0'*(2-len(str(index))) + str(index)
                     index += 1
