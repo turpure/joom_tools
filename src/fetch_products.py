@@ -108,18 +108,26 @@ def crawler():
                       "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,"
                       "%s,%s,%s,%s,%s,%s,%s,%s)")
         update_sql = "update oa_data_mine set progress=%s where id=%s"
+        code_sql = "select goodsCode from oa_data_mine where id=%s"
         while True:
 
             job = redis.blpop('job_list')[1]
             job_info = job.split(',')
             job_id, pro_id = job_info
             raw_data = fetch__products(pro_id)
+            cur.execute(code_sql, (job_id,))
+            code_ret = cur.fetchone()
+            code = code_ret[0]
+            import pdb
+            pdb.set_trace()
             try:
+                index = 1
                 for row in parse_response(raw_data):
                     row['mid'] = job_id
                     row['parentId'] = ''
                     row['tags'] = ''
-                    row['childId'] = ''
+                    row['childId'] = code + '_' + '0'*(2-len(str(index))) + str(index)
+                    index += 1
                     cur.execute(insert_sql,
                                 (row['mid'], row['parentId'], row['proName'], row['description'],
                                 row['tags'], row['childId'], row['color'], row['proSize'], row['quantity'],
@@ -133,7 +141,7 @@ def crawler():
                 cur.execute(update_sql, (u'采集成功', job_id))
                 con.commit()
             except Exception as why:
-                logger.error('%s while fetchi       ng %s' % (why, job_id))
+                logger.error('%s while fetching %s' % (why, job_id))
                 cur.execute(update_sql, (u'采集失败', job_id))
                 con.commit()
             finally:
