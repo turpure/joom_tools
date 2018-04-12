@@ -46,6 +46,12 @@ def parse_response(data):
     if data is not None:
         main_info = dict()
         pro_info = data['payload']
+        try:
+            tags_info = pro_info['nameExt']['tags']
+            tags = ','.join([name['nameEng'] for name in tags_info])
+        except:
+            tags = ''
+        main_info['tags'] = tags
         extra_images = pro_info['gallery']
         main_info['proId'] = pro_info['id']
         main_info['description'] = pro_info['engDescription']
@@ -122,7 +128,6 @@ def crawler():
                 for row in parse_response(raw_data):
                     row['mid'] = job_id
                     row['parentId'] = code
-                    row['tags'] = ''
                     row['childId'] = code + '_' + '0'*(2-len(str(index))) + str(index)
                     index += 1
                     cur.execute(insert_sql,
