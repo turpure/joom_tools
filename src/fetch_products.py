@@ -152,7 +152,7 @@ def crawler():
                     logger.error('%s while fetching %s' % (why, pro_id))
                     cur.execute(update_sql, (u'采集失败', job_id))
                     con.commit()
-                except NameError as how:
+                except Exception as how:
                     logger.error('%s:not able to get job' % how)
 
 
