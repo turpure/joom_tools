@@ -145,12 +145,12 @@ def crawler():
                 cur.execute(update_sql, (u'采集成功', job_id))
                 con.commit()
             except Exception as why:
-                logger.error('%s while fetching %s' % (why, job_id))
-                cur.execute(update_sql, (u'采集失败', job_id))
-                con.commit()
-            finally:
-                print(job_id)
-                stdout.flush()
+                try:
+                    logger.error('%s while fetching %s' % (why, pro_id))
+                    cur.execute(update_sql, (u'采集失败', job_id))
+                    con.commit()
+                except NameError as how:
+                    logger.error('%s:not able to get job' % how)
 
 
 if __name__ == "__main__":
