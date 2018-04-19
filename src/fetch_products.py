@@ -56,7 +56,10 @@ def parse_response(data):
         main_info['proId'] = pro_info['id']
         main_info['description'] = pro_info['engDescription']
         main_info['proName'] = pro_info['engName']
-        main_info['categoryId'] = pro_info['categoryId']
+        try:
+            main_info['categoryId'] = pro_info['categoryId']
+        except:
+            main_info['categoryId'] = ''
         main_info['mainImage'] = pro_info['lite']['mainImage']['images'][-1]['url']
         for image in extra_images:
             main_info['extra_image' + str(extra_images.index(image))] = image['payload']['images'][-1]['url']
