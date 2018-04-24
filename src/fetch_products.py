@@ -101,27 +101,27 @@ def parse_response(data):
 
 
 def crawler():
-    with ms_sql as con:
-        cur = con.cursor()
-        insert_sql = ("insert oa_data_mine_detail"
-                      "(mid,parentId,proName,description,"
-                      "tags,childId,color,proSize,quantity,"
-                      "price,msrPrice,shipping,shippingWeight,"
-                      "shippingTime,varMainImage,extra_image0,"
-                      "extra_image1,extra_image2,extra_image3,"
-                      "extra_image4,extra_image5,extra_image6,"
-                      "extra_image7,extra_image8,extra_image9,"
-                      "extra_image10,mainImage"
-                      ") "
-                      "values( %s,%s,%s,%s,%s,%s,%s,%s,"
-                      "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,"
-                      "%s,%s,%s,%s,%s,%s,%s,%s)")
-        update_sql = "update oa_data_mine set progress=%s where id=%s"
-        code_sql = "select goodsCode from oa_data_mine where id=%s"
-        main_image_sql = "update oa_data_mine set mainImage=%s"
-        while True:
+    while True:
+        with ms_sql as con:
+            cur = con.cursor()
+            insert_sql = ("insert oa_data_mine_detail"
+                          "(mid,parentId,proName,description,"
+                          "tags,childId,color,proSize,quantity,"
+                          "price,msrPrice,shipping,shippingWeight,"
+                          "shippingTime,varMainImage,extra_image0,"
+                          "extra_image1,extra_image2,extra_image3,"
+                          "extra_image4,extra_image5,extra_image6,"
+                          "extra_image7,extra_image8,extra_image9,"
+                          "extra_image10,mainImage"
+                          ") "
+                          "values( %s,%s,%s,%s,%s,%s,%s,%s,"
+                          "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,"
+                          "%s,%s,%s,%s,%s,%s,%s,%s)")
+            update_sql = "update oa_data_mine set progress=%s where id=%s"
+            code_sql = "select goodsCode from oa_data_mine where id=%s"
+            main_image_sql = "update oa_data_mine set mainImage=%s"
             try:
-                job = redis.blpop('job_list')[1]
+                job = redis.blpop('job_list')[3]
                 job_info = job.split(',')
                 job_id, pro_id = job_info
                 raw_data = fetch__products(pro_id)
@@ -147,6 +147,7 @@ def crawler():
 
                 cur.execute(update_sql, (u'采集成功', job_id))
                 con.commit()
+                logger.info('fetching %s' % pro_id)
             except Exception as why:
                 try:
                     logger.error('%s while fetching %s' % (why, pro_id))
