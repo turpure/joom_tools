@@ -4,3 +4,4 @@ venv/
 *.pyc
 .idea/
 *.log
+/common/logger.py

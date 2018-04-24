@@ -8,14 +8,12 @@ from sys import stdout
 import requests
 from common.color import get_color_dict
 from common.db import Redis, MsSQL
-from common.logger import log
+from common.logger import logger
 
 
 color_dict = get_color_dict()
 redis = Redis().redis()
 ms_sql = MsSQL()
-
-logger = log('Joom-crawler', 'fetching.log')
 
 
 def fetch__products(pro_id):
@@ -121,7 +119,7 @@ def crawler():
             code_sql = "select goodsCode from oa_data_mine where id=%s"
             main_image_sql = "update oa_data_mine set mainImage=%s"
             try:
-                job = redis.blpop('job_list')[3]
+                job = redis.blpop('job_list')[1]
                 job_info = job.split(',')
                 job_id, pro_id = job_info
                 raw_data = fetch__products(pro_id)
@@ -147,7 +145,7 @@ def crawler():
 
                 cur.execute(update_sql, (u'采集成功', job_id))
                 con.commit()
-                logger.info('fetching %s' % pro_id)
+                logger.info('fetching %s' % job_id)
             except Exception as why:
                 try:
                     logger.error('%s while fetching %s' % (why, pro_id))
