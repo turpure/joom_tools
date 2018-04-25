@@ -14,6 +14,7 @@ from common.logger import logger
 color_dict = get_color_dict()
 redis = Redis().redis()
 ms_sql = MsSQL()
+con = ms_sql.connection()
 
 
 def fetch__products(pro_id):
@@ -100,62 +101,59 @@ def parse_response(data):
 
 def crawler():
     while True:
+        insert_sql = ("insert oa_data_mine_detail"
+                      "(mid,parentId,proName,description,"
+                      "tags,childId,color,proSize,quantity,"
+                      "price,msrPrice,shipping,shippingWeight,"
+                      "shippingTime,varMainImage,extra_image0,"
+                      "extra_image1,extra_image2,extra_image3,"
+                      "extra_image4,extra_image5,extra_image6,"
+                      "extra_image7,extra_image8,extra_image9,"
+                      "extra_image10,mainImage"
+                      ") "
+                      "values( %s,%s,%s,%s,%s,%s,%s,%s,"
+                      "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,"
+                      "%s,%s,%s,%s,%s,%s,%s,%s)")
+        update_sql = "update oa_data_mine set progress=%s where id=%s"
+        code_sql = "select goodsCode from oa_data_mine where id=%s"
+        main_image_sql = "update oa_data_mine set mainImage=%s"
+        try:
+            job = redis.blpop('job_list')[1]
+            job_info = job.split(',')
+            job_id, pro_id = job_info
+            raw_data = fetch__products(pro_id)
+            cur = con.cursor()
+            cur.execute(code_sql, (job_id,))
+            code_ret = cur.fetchone()
+            code = code_ret[0]
+            index = 1
+            for row in parse_response(raw_data):
+                row['mid'] = job_id
+                row['parentId'] = code
+                row['childId'] = code + '_' + '0'*(2-len(str(index))) + str(index)
+                index += 1
+                cur.execute(main_image_sql, (row['mainImage']))
+                cur.execute(insert_sql,
+                            (row['mid'], row['parentId'], row['proName'], row['description'],
+                            row['tags'], row['childId'], row['color'], row['proSize'], row['quantity'],
+                            float(row['price']), float(row['msrPrice']), row['shipping'], float(row['shippingWeight']),
+                            row['shippingTime'],
+                            row['varMainImage'], row['extra_image0'], row['extra_image1'], row['extra_image2'],
+                            row['extra_image3'], row['extra_image4'], row['extra_image5'],
+                            row['extra_image6'], row['extra_image7'], row['extra_image8'],
+                            row['extra_image9'], row['extra_image10'], row['mainImage']))
 
-            insert_sql = ("insert oa_data_mine_detail"
-                          "(mid,parentId,proName,description,"
-                          "tags,childId,color,proSize,quantity,"
-                          "price,msrPrice,shipping,shippingWeight,"
-                          "shippingTime,varMainImage,extra_image0,"
-                          "extra_image1,extra_image2,extra_image3,"
-                          "extra_image4,extra_image5,extra_image6,"
-                          "extra_image7,extra_image8,extra_image9,"
-                          "extra_image10,mainImage"
-                          ") "
-                          "values( %s,%s,%s,%s,%s,%s,%s,%s,"
-                          "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,"
-                          "%s,%s,%s,%s,%s,%s,%s,%s)")
-            update_sql = "update oa_data_mine set progress=%s where id=%s"
-            code_sql = "select goodsCode from oa_data_mine where id=%s"
-            main_image_sql = "update oa_data_mine set mainImage=%s"
+            cur.execute(update_sql, (u'采集成功', job_id))
+            con.commit()
+            logger.info('fetching %s' % job_id)
+        except Exception as why:
             try:
-                job = redis.blpop('job_list')[1]
-                job_info = job.split(',')
-                job_id, pro_id = job_info
-                raw_data = fetch__products(pro_id)
-                with ms_sql as con:
-                    cur = con.cursor()
-                    cur.execute(code_sql, (job_id,))
-                    code_ret = cur.fetchone()
-                    code = code_ret[0]
-                    index = 1
-                    for row in parse_response(raw_data):
-                        row['mid'] = job_id
-                        row['parentId'] = code
-                        row['childId'] = code + '_' + '0'*(2-len(str(index))) + str(index)
-                        index += 1
-                        cur.execute(main_image_sql, (row['mainImage']))
-                        cur.execute(insert_sql,
-                                    (row['mid'], row['parentId'], row['proName'], row['description'],
-                                    row['tags'], row['childId'], row['color'], row['proSize'], row['quantity'],
-                                    float(row['price']), float(row['msrPrice']), row['shipping'], float(row['shippingWeight']),
-                                    row['shippingTime'],
-                                    row['varMainImage'], row['extra_image0'], row['extra_image1'], row['extra_image2'],
-                                    row['extra_image3'], row['extra_image4'], row['extra_image5'],
-                                    row['extra_image6'], row['extra_image7'], row['extra_image8'],
-                                    row['extra_image9'], row['extra_image10'], row['mainImage']))
-
-                    cur.execute(update_sql, (u'采集成功', job_id))
-                    con.commit()
-                    logger.info('fetching %s' % job_id)
-            except Exception as why:
-                try:
-                    with ms_sql as con:
-                        cur = con.cursor()
-                        logger.error('%s while fetching %s' % (why, pro_id))
-                        cur.execute(update_sql, (u'采集失败', job_id))
-                        con.commit()
-                except Exception as how:
-                    logger.error('%s:not able to get job' % how)
+                cur = con.cursor()
+                logger.error('%s while fetching %s' % (why, pro_id))
+                cur.execute(update_sql, (u'采集失败', job_id))
+                con.commit()
+            except Exception as how:
+                logger.error('%s:not able to get job' % how)
 
 
 if __name__ == "__main__":
