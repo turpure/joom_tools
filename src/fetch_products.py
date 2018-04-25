@@ -118,12 +118,12 @@ def crawler():
             code_sql = "select goodsCode from oa_data_mine where id=%s"
             main_image_sql = "update oa_data_mine set mainImage=%s"
             try:
+                job = redis.blpop('job_list')[1]
+                job_info = job.split(',')
+                job_id, pro_id = job_info
+                raw_data = fetch__products(pro_id)
                 with ms_sql as con:
                     cur = con.cursor()
-                    job = redis.blpop('job_list')[1]
-                    job_info = job.split(',')
-                    job_id, pro_id = job_info
-                    raw_data = fetch__products(pro_id)
                     cur.execute(code_sql, (job_id,))
                     code_ret = cur.fetchone()
                     code = code_ret[0]
