@@ -118,34 +118,36 @@ def crawler():
         code_sql = "select goodsCode from oa_data_mine where id=%s"
         main_image_sql = "update oa_data_mine set mainImage=%s where id=%s"
         try:
-            job = redis.blpop('job_list')[1]
-            job_info = job.split(',')
-            job_id, pro_id = job_info
-            raw_data = fetch__products(pro_id)
-            cur = con.cursor()
-            cur.execute(code_sql, (job_id,))
-            code_ret = cur.fetchone()
-            code = code_ret[0]
-            index = 1
-            for row in parse_response(raw_data):
-                row['mid'] = job_id
-                row['parentId'] = code
-                row['childId'] = code + '_' + '0'*(2-len(str(index))) + str(index)
-                index += 1
-                cur.execute(main_image_sql, (row['mainImage'], job_id))
-                cur.execute(insert_sql,
-                            (row['mid'], row['parentId'], row['proName'], row['description'],
-                            row['tags'], row['childId'], row['color'], row['proSize'], row['quantity'],
-                            float(row['price']), float(row['msrPrice']), row['shipping'], float(row['shippingWeight']),
-                            row['shippingTime'],
-                            row['varMainImage'], row['extra_image0'], row['extra_image1'], row['extra_image2'],
-                            row['extra_image3'], row['extra_image4'], row['extra_image5'],
-                            row['extra_image6'], row['extra_image7'], row['extra_image8'],
-                            row['extra_image9'], row['extra_image10'], row['mainImage']))
+            task = redis.blpop('job_list', timeout=1800)
+            if task:
+                job = task[1]
+                job_info = job.split(',')
+                job_id, pro_id = job_info
+                raw_data = fetch__products(pro_id)
+                cur = con.cursor()
+                cur.execute(code_sql, (job_id,))
+                code_ret = cur.fetchone()
+                code = code_ret[0]
+                index = 1
+                for row in parse_response(raw_data):
+                    row['mid'] = job_id
+                    row['parentId'] = code
+                    row['childId'] = code + '_' + '0'*(2-len(str(index))) + str(index)
+                    index += 1
+                    cur.execute(main_image_sql, (row['mainImage'], job_id))
+                    cur.execute(insert_sql,
+                                (row['mid'], row['parentId'], row['proName'], row['description'],
+                                row['tags'], row['childId'], row['color'], row['proSize'], row['quantity'],
+                                float(row['price']), float(row['msrPrice']), row['shipping'], float(row['shippingWeight']),
+                                row['shippingTime'],
+                                row['varMainImage'], row['extra_image0'], row['extra_image1'], row['extra_image2'],
+                                row['extra_image3'], row['extra_image4'], row['extra_image5'],
+                                row['extra_image6'], row['extra_image7'], row['extra_image8'],
+                                row['extra_image9'], row['extra_image10'], row['mainImage']))
 
-            cur.execute(update_sql, (u'采集成功', job_id))
-            con.commit()
-            logger.info('fetching %s' % job_id)
+                cur.execute(update_sql, (u'采集成功', job_id))
+                con.commit()
+                logger.info('fetching %s' % job_id)
         except Exception as why:
             try:
                 cur = con.cursor()
