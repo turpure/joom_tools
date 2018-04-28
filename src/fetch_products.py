@@ -116,7 +116,7 @@ def crawler():
                       "%s,%s,%s,%s,%s,%s,%s,%s)")
         update_sql = "update oa_data_mine set progress=%s where id=%s"
         code_sql = "select goodsCode from oa_data_mine where id=%s"
-        main_image_sql = "update oa_data_mine set mainImage=%s"
+        main_image_sql = "update oa_data_mine set mainImage=%s where id=%s"
         try:
             job = redis.blpop('job_list')[1]
             job_info = job.split(',')
@@ -132,7 +132,7 @@ def crawler():
                 row['parentId'] = code
                 row['childId'] = code + '_' + '0'*(2-len(str(index))) + str(index)
                 index += 1
-                cur.execute(main_image_sql, (row['mainImage']))
+                cur.execute(main_image_sql, (row['mainImage'], job_id))
                 cur.execute(insert_sql,
                             (row['mid'], row['parentId'], row['proName'], row['description'],
                             row['tags'], row['childId'], row['color'], row['proSize'], row['quantity'],
