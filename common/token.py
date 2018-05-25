@@ -3,7 +3,7 @@
 
 """ get products using token"""
 
-from db import MsSQL
+from tools import MsSQL
 
 
 connection = MsSQL()

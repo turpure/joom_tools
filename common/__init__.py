@@ -1,4 +1,4 @@
 import common.color
-import db
+import tools
 import logger
 import token

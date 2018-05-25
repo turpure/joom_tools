@@ -1,7 +1,7 @@
 #! usr/bin/python
 # coding: utf8
 
-from db import MsSQL
+from tools import MsSQL
 
 connection = MsSQL()
 
