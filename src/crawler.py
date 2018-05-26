@@ -5,6 +5,7 @@
 
 
 import requests
+import time
 from common.color import get_color_dict
 from common.tools import BaseCrawler, MsSQL
 
@@ -94,11 +95,20 @@ class Crawler(BaseCrawler):
             wanted_info = dict(main_info, **variants)
             yield wanted_info
 
+    def get_task(self, queue_name, block=True):
+        if block:
+            task = self.redis.blpop(queue_name, timeout=10)
+            task = task[1]
+        else:
+            task = self.redis.lpop(queue_name)
+            if not task:
+                time.sleep(1)
+        return task
+
     def run(self):
         while 1:
-            task = self.redis.blpop('job_list', timeout=10)
-            if task:
-                job = task[1]
+            job = self.get_task('job_list', block=False)
+            if job:
                 job_info = job.split(',')
                 job_id, pro_id = job_info
                 raw_data = self.fetch(pro_id)
