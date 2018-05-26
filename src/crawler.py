@@ -96,7 +96,7 @@ class Crawler(BaseCrawler):
 
     def run(self):
         while 1:
-            task = self.redis.blpop('job_list', timeout=1800)
+            task = self.redis.lpop('job_list', timeout=1800)
             job = task[1]
             job_info = job.split(',')
             job_id, pro_id = job_info
