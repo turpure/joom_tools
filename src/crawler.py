@@ -96,13 +96,14 @@ class Crawler(BaseCrawler):
 
     def run(self):
         while 1:
-            task = self.redis.lpop('job_list')
-            job = task[1]
-            job_info = job.split(',')
-            job_id, pro_id = job_info
-            raw_data = self.fetch(pro_id)
-            rows = self.parse(raw_data)
-            self.data_base.insert(rows, job_id)
+            task = self.redis.blpop('job_list', timeout=10)
+            if task:
+                job = task[1]
+                job_info = job.split(',')
+                job_id, pro_id = job_info
+                raw_data = self.fetch(pro_id)
+                rows = self.parse(raw_data)
+                self.data_base.insert(rows, job_id)
 
 
 if __name__ == "__main__":
