@@ -107,7 +107,7 @@ class Crawler(BaseCrawler):
 
     def run(self):
         while 1:
-            job = self.get_task('job_list', block=False)
+            job = self.get_task('job_list', block=True)
             if job:
                 job_info = job.split(',')
                 job_id, pro_id = job_info
