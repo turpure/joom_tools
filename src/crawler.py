@@ -92,7 +92,7 @@ class Crawler(BaseCrawler):
             except:
                 variants['varMainImage'] = ''
             # variants['quantity'] = var['inventory']
-            variants['quantity'] = 10000
+            variants['quantity'] = 100000
             wanted_info = dict(main_info, **variants)
             yield wanted_info
 
