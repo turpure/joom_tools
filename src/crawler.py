@@ -40,9 +40,15 @@ class Crawler(BaseCrawler):
             'user-agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
                            'AppleWebKit/537.36 (KHTML, like Gecko) '
                            'Chrome/64.0.3282.186 Safari/537.36'),
+            'referer': "https://www.joom.com",
+            'origin': "https://www.joom.com",
+            'Host': "api.joom.com",
+            'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.79 Safari/537.36",
+            'Cache-Control': "no-cache",
+            'x-version': "0.1.0"
         }
         session = requests.Session()
-        r = session.get(base_url, headers=headers)
+        r = session.get(base_url, headers=headers, verify=False)
         return r.json()
 
     @staticmethod
@@ -119,6 +125,8 @@ class Crawler(BaseCrawler):
 
 if __name__ == "__main__":
     crawler = Crawler()
-    crawler.run()
+    # crawler.run()
+    pro = '1521108937995191114-172-1-26193-108557646'
+    print crawler.fetch(pro)
 
 
