@@ -30,20 +30,21 @@ class Crawler(BaseCrawler):
         base_url = api + pro_id
 
         headers = {
-            'authorization': ('Bearer SEV0001MTUxOTcwOTIyM3xFWmJvMklNTEhiak00bmR'
-                              'faTlHR3hvVFZjQ0FnM1J0Y2lRaTBjZjBYYzZNZk1UdGV6bmxj'
-                              'SXY3dHpmbHdhcjhnTzFIaXVtY0JHdFNScVJRbThta2hnRFI5d'
-                              'GstOG1RQTV1NzhIUHNDa2R5QVBqcXh4c0FJcnk4MzkzMGNrVG'
-                              'xIaW5CY21kQTZLeWdhRzIxaUQ5NHFBeHpjZTkxMjhRdTJyNmd'
-                              'adW1mSE43bDg9fGilWmQI8Z_gEFrC6nNCvX6CFqh0zT21rhbk'
-                              'xiuioDfU'),
+            'authorization': ('Bearer SEV0001MTUzMDQ5OTYwNnxWX01KdDNBRlRMQVpkR2EyTkNRRHFzZnQwS'
+                              'E9TUjVIM2NIbVQ5R1pvS2NiNWN1Y0FyT1lUUlA5ZWlrNHBGMUJfV1Y5cDhiVi1'
+                              'QYUhPeE1UbVU5dXh1bF9FU3dsSUJta3lmdmhWWnZ6YjFNR3hzeVN2UFN4Z05Ba'
+                              'ENRZlVaZ0g3X3J1Yjdzem9DZEV4eS1zaEJIbUZTeWE3b3hDbHY3a2g4Ynlvcm5'
+                              '4T3JjaC1Vb1FqcUMzazkwUjRWdG1RQThCNFpFMHJUWWk2d2U1Y1RqemR1enlJe'
+                              'GVaeXQ0M1ltZ1gzckJKZjBaSlJ3WTlhYTg2dzNIVUk9fI_lWJb8175Cqmi_dHb'
+                              'Mr-27lLp_O_QT1WCctYxTZz8a'),
             'user-agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
                            'AppleWebKit/537.36 (KHTML, like Gecko) '
                            'Chrome/64.0.3282.186 Safari/537.36'),
             'referer': "https://www.joom.com",
             'origin': "https://www.joom.com",
             'Host': "api.joom.com",
-            'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.79 Safari/537.36",
+            'User-Agent': ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/"
+                           "537.36 (KHTML, like Gecko) Chrome/67.0.3396.79 Safari/537.36"),
             'Cache-Control': "no-cache",
             'x-version': "0.1.0"
         }
@@ -126,7 +127,7 @@ class Crawler(BaseCrawler):
 if __name__ == "__main__":
     crawler = Crawler()
     # crawler.run()
-    pro = '1521108937995191114-172-1-26193-108557646'
+    pro = '5af6b2011436d401142600d7'
     print crawler.fetch(pro)
 
 
