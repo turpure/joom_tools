@@ -24,5 +24,5 @@ def get_token(alias_name):
             return ret['AccessToken']
 
 
-if __name__ ==  "__main__":
+if __name__ == "__main__":
     print get_token('Joom01-YHBaby')
