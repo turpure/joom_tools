@@ -48,7 +48,7 @@ class Crawler(BaseCrawler):
             'Cache-Control': "no-cache",
             'x-version': "0.1.9",
             'x-ostype ': 'Windows',
-            'x-api-token': 'ZDRDF2xru4Lc6gL5nMH8Ljsxf9RCY9I5'
+            'x-api-token': 'hHdQ0dYUyTHvST3H93HrDjavvdjZwys1'
         }
         session = requests.Session()
         r = session.get(base_url, headers=headers, verify=False)
@@ -129,7 +129,7 @@ class Crawler(BaseCrawler):
 if __name__ == "__main__":
     crawler = Crawler()
     # crawler.run()
-    pro = '5c131b5336b54d010170fe94'
+    pro = '1488005437841265903-87-1-582-566822838'
     print crawler.fetch(pro)
 
 
