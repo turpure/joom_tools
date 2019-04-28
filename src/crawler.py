@@ -7,19 +7,23 @@
 import requests
 import time
 from common.color import get_color_dict
-from common.tools import BaseCrawler, MsSQL
+from common.tools import BaseCrawler, MsSQL, MySQL
 
 
 color_dict = get_color_dict()
 ms_sql = MsSQL()
+my_sql = MySQL()
 con = ms_sql.connection()
 
 
 class Crawler(BaseCrawler):
 
-    data_base = MsSQL()
+    def __init__(self, db_type='mssql'):
+        if db_type == 'mssql':
+            self.data_base = MsSQL()
+        else:
+            self.data_base = MySQL()
 
-    def __int__(self):
         super(Crawler, self).__init__()
 
     @staticmethod
@@ -117,19 +121,22 @@ class Crawler(BaseCrawler):
 
     def run(self):
         while 1:
-            job = self.get_task('job_list', block=True)
-            if job:
-                job_info = job.split(',')
-                job_id, pro_id = job_info
-                raw_data = self.fetch(pro_id)
-                rows = self.parse(raw_data)
-                self.data_base.insert(rows, job_id)
+            try:
+                job = self.get_task('job_list', block=True)
+                if job:
+                    job_info = job.split(',')
+                    job_id, pro_id = job_info
+                    raw_data = self.fetch(pro_id)
+                    rows = self.parse(raw_data)
+                    self.data_base.insert(rows, job_id)
+            except Exception as why:
+                pass
 
 
 if __name__ == "__main__":
-    crawler = Crawler()
-    # crawler.run()
-    pro = '1488005437841265903-87-1-582-566822838'
-    print crawler.fetch(pro)
+    crawler = Crawler('mysql')
+    crawler.run()
+    # pro = '1488005437841265903-87-1-582-566822838'
+    # print crawler.fetch(pro)
 
 
