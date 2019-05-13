@@ -3,6 +3,6 @@
 
 from src import crawler
 
-worker = crawler.Crawler()
+worker = crawler.Crawler('mysql')
 worker.run()
 
