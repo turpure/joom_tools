@@ -8,7 +8,7 @@ import requests
 import time
 from common.color import get_color_dict
 from common.tools import BaseCrawler, MsSQL, MySQL
-
+import pymysql
 
 color_dict = get_color_dict()
 ms_sql = MsSQL()
@@ -26,13 +26,22 @@ class Crawler(BaseCrawler):
 
         super(Crawler, self).__init__()
 
-    @staticmethod
-    def fetch(pro_id):
+    def get_token(self):
+        sql = 'select  token from urTools.sys_joom_token limit 1'
+        con = self.data_base.connection()
+        cur = con.cursor(pymysql.cursors.DictCursor)
+        cur.execute(sql)
+        ret = cur.fetchone()
+        if ret:
+            return ret['token']
+        return None
+
+    def fetch(self, pro_id):
         api = 'https://api.joom.com/1.1/products/'
         if not pro_id:
             raise Exception('Invalid pro ID', pro_id)
         base_url = api + pro_id
-
+        token = self.get_token()
         headers = {
             'authorization': ('Bearer SEV0001MTUzMDQ5OTYwNnxWX01KdDNBRlRMQVpkR2EyTkNRRHFzZnQwS'
                               'E9TUjVIM2NIbVQ5R1pvS2NiNWN1Y0FyT1lUUlA5ZWlrNHBGMUJfV1Y5cDhiVi1'
@@ -52,7 +61,7 @@ class Crawler(BaseCrawler):
             'Cache-Control': "no-cache",
             'x-version': "0.1.9",
             'x-ostype ': 'Windows',
-            'x-api-token': 'hHdQ0dYUyTHvST3H93HrDjavvdjZwys1'
+            'x-api-token': token
         }
         session = requests.Session()
         r = session.get(base_url, headers=headers, verify=False)
@@ -135,8 +144,7 @@ class Crawler(BaseCrawler):
 
 if __name__ == "__main__":
     crawler = Crawler('mysql')
-    crawler.run()
-    # pro = '1488005437841265903-87-1-582-566822838'
-    # print crawler.fetch(pro)
+    pro = '1488005437841265903-87-1-582-566822838'
+    print crawler.fetch(pro)
 
 
