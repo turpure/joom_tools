@@ -37,19 +37,19 @@ class Crawler(BaseCrawler):
         return None
 
     def fetch(self, pro_id):
-        api = 'https://api.joom.com/1.1/products/'
         if not pro_id:
             raise Exception('Invalid pro ID', pro_id)
-        base_url = api + pro_id
+        api = 'https://api.joom.com/1.1/products/{}?currency=USD&language=en-US'
+
+        base_url = api.format(pro_id)
         token = self.get_token()
         headers = {
-            'authorization': ('Bearer SEV0001MTUzMDQ5OTYwNnxWX01KdDNBRlRMQVpkR2EyTkNRRHFzZnQwS'
-                              'E9TUjVIM2NIbVQ5R1pvS2NiNWN1Y0FyT1lUUlA5ZWlrNHBGMUJfV1Y5cDhiVi1'
-                              'QYUhPeE1UbVU5dXh1bF9FU3dsSUJta3lmdmhWWnZ6YjFNR3hzeVN2UFN4Z05Ba'
-                              'ENRZlVaZ0g3X3J1Yjdzem9DZEV4eS1zaEJIbUZTeWE3b3hDbHY3a2g4Ynlvcm5'
-                              '4T3JjaC1Vb1FqcUMzazkwUjRWdG1RQThCNFpFMHJUWWk2d2U1Y1RqemR1enlJe'
-                              'GVaeXQ0M1ltZ1gzckJKZjBaSlJ3WTlhYTg2dzNIVUk9fI_lWJb8175Cqmi_dHb'
-                              'Mr-27lLp_O_QT1WCctYxTZz8a'),
+            'authorization': ('Bearer SEV0001MTU0NjY1Mzc2M3xTSU9XdUJFbFU4NDJ5VHVndk8tV3ROem8yYVFCV0Q'
+                              'tYjE2aTBDM3FNLWZkbVFyX01aTFJUek05REJZUVZnWVNmOE5TanlCWXhYRk84MWFINHZDT'
+                              'E5UVUJGb0ZSTmFWLXlkZlRCem9YRVg4R21GSEEwVHNQeHJIUWZKMmJ5dWd2VmpKNkZ4Q0V6'
+                              'VS1JdF9EZzF1UGtyb1NzcVQ5VDlQLTRwNnJ4Nl9yaHZTUkEzUmRfZUI0ZFB1TGxXejFFTkN'
+                              'zNm1PUzZoY1BScXI1YVhEWGlWdmVwODJIOVhxTnlZcGYxSVdDQzJXY1RTQjMyUjRWc09FVVU9'
+                              'fJgmguEcQE9NGiD_vYv4ymZpnsmOBH4btJX1l56WY4V7'),
             'user-agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
                            'AppleWebKit/537.36 (KHTML, like Gecko) '
                            'Chrome/64.0.3282.186 Safari/537.36'),
@@ -144,7 +144,7 @@ class Crawler(BaseCrawler):
 
 if __name__ == "__main__":
     crawler = Crawler('mysql')
-    pro = '1488005437841265903-87-1-582-566822838'
+    pro = '5bfe498e36b54d01016765f3'
     print crawler.fetch(pro)
 
 
