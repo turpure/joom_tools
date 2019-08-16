@@ -27,13 +27,13 @@ class Crawler(BaseCrawler):
         super(Crawler, self).__init__()
 
     def get_token(self):
-        sql = 'select  token from urTools.sys_joom_token limit 1'
+        sql = 'select  token, bearerToken from urTools.sys_joom_token limit 1'
         con = self.data_base.connection()
         cur = con.cursor(pymysql.cursors.DictCursor)
         cur.execute(sql)
         ret = cur.fetchone()
         if ret:
-            return ret['token']
+            return ret
         return None
 
     def fetch(self, pro_id):
@@ -43,13 +43,10 @@ class Crawler(BaseCrawler):
 
         base_url = api.format(pro_id)
         token = self.get_token()
+        api_token = token['token']
+        bearer_token = token['bearerToken']
         headers = {
-            'authorization': ('Bearer SEV0001MTU0NjY1Mzc2M3xTSU9XdUJFbFU4NDJ5VHVndk8tV3ROem8yYVFCV0Q'
-                              'tYjE2aTBDM3FNLWZkbVFyX01aTFJUek05REJZUVZnWVNmOE5TanlCWXhYRk84MWFINHZDT'
-                              'E5UVUJGb0ZSTmFWLXlkZlRCem9YRVg4R21GSEEwVHNQeHJIUWZKMmJ5dWd2VmpKNkZ4Q0V6'
-                              'VS1JdF9EZzF1UGtyb1NzcVQ5VDlQLTRwNnJ4Nl9yaHZTUkEzUmRfZUI0ZFB1TGxXejFFTkN'
-                              'zNm1PUzZoY1BScXI1YVhEWGlWdmVwODJIOVhxTnlZcGYxSVdDQzJXY1RTQjMyUjRWc09FVVU9'
-                              'fJgmguEcQE9NGiD_vYv4ymZpnsmOBH4btJX1l56WY4V7'),
+            'authorization': bearer_token,
             'user-agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
                            'AppleWebKit/537.36 (KHTML, like Gecko) '
                            'Chrome/64.0.3282.186 Safari/537.36'),
@@ -61,7 +58,7 @@ class Crawler(BaseCrawler):
             'Cache-Control': "no-cache",
             'x-version': "0.1.9",
             'x-ostype ': 'Windows',
-            'x-api-token': token
+            'x-api-token': api_token
         }
         session = requests.Session()
         r = session.get(base_url, headers=headers, verify=False)
