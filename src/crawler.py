@@ -56,7 +56,7 @@ class Crawler(BaseCrawler):
             'User-Agent': ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/"
                            "537.36 (KHTML, like Gecko) Chrome/67.0.3396.79 Safari/537.36"),
             'Cache-Control': "no-cache",
-            'x-version': "0.1.9",
+            'x-version': "2.100.0",
             'x-ostype ': 'Windows',
             'x-api-token': api_token
         }
