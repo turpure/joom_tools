@@ -27,7 +27,7 @@ class Crawler(BaseCrawler):
         super(Crawler, self).__init__()
 
     def get_token(self):
-        sql = 'select  token, bearerToken from urTools.sys_joom_token limit 1'
+        sql = 'select  token, bearerToken,x_version from urTools.sys_joom_token limit 1'
         con = self.data_base.connection()
         cur = con.cursor(pymysql.cursors.DictCursor)
         cur.execute(sql)
@@ -45,6 +45,7 @@ class Crawler(BaseCrawler):
         token = self.get_token()
         api_token = token['token']
         bearer_token = token['bearerToken']
+        x_version = token['x_version']
         headers = {
             'authorization': bearer_token,
             'user-agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
@@ -56,7 +57,7 @@ class Crawler(BaseCrawler):
             'User-Agent': ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/"
                            "537.36 (KHTML, like Gecko) Chrome/67.0.3396.79 Safari/537.36"),
             'Cache-Control': "no-cache",
-            'x-version': "3.0.0",
+            'x-version': x_version,
             'x-ostype ': 'Windows',
             'x-api-token': api_token
         }
