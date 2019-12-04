@@ -51,14 +51,14 @@ class Crawler(BaseCrawler):
             'user-agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
                            'AppleWebKit/537.36 (KHTML, like Gecko) '
                            'Chrome/64.0.3282.186 Safari/537.36'),
-            'referer': "https://www.joom.com",
-            'origin': "https://www.joom.com",
-            'Host': "api.joom.com",
-            'User-Agent': ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/"
-                           "537.36 (KHTML, like Gecko) Chrome/67.0.3396.79 Safari/537.36"),
-            'Cache-Control': "no-cache",
-            'x-version': x_version,
-            'x-ostype ': 'Windows',
+            # 'referer': "https://www.joom.com",
+            # 'origin': "https://www.joom.com",
+            # 'Host': "api.joom.com",
+            # 'User-Agent': ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/"
+            #                "537.36 (KHTML, like Gecko) Chrome/67.0.3396.79 Safari/537.36"),
+            # 'Cache-Control': "no-cache",
+            # 'x-version': x_version,
+            # 'x-ostype ': 'Windows',
             'x-api-token': api_token
         }
         session = requests.Session()
@@ -142,7 +142,7 @@ class Crawler(BaseCrawler):
 
 if __name__ == "__main__":
     crawler = Crawler('mysql')
-    pro = '5bfe498e36b54d01016765f3'
+    pro = '5dd3dff7742d920101b6cc79'
     print crawler.fetch(pro)
 
 
